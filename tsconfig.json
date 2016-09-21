@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es5",
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "declaration": true,
+        "removeComments": true,
+        "outDir": "lib"
+    },
+    "files": [
+        "src/index.ts",
+        "typings/index.d.ts"
+    ]
+}
