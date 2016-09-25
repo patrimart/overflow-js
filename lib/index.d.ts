@@ -9,6 +9,11 @@ export interface IOverflow {
     times(v: number): this;
     divide(v: number): this;
 }
+export interface IOverflowHashCode {
+    value: number;
+    valueOf(): number;
+    of(...args: (string | number | string[] | number[])[]): this;
+}
 export declare namespace Overflow {
     const Min: () => OverflowInt;
     const Max: () => OverflowInt;

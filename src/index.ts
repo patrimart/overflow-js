@@ -16,6 +16,16 @@ export interface IOverflow {
 }
 
 /**
+ * IOverflowHashCode interface.
+ */
+export interface IOverflowHashCode {
+    value: number;
+    valueOf (): number;
+    of (...args: (string | number | string[] | number[])[]): this;
+}
+
+
+/**
  * The Overflow namespace.
  */
 export namespace Overflow {

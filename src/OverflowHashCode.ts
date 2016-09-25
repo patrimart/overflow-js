@@ -1,12 +1,12 @@
 
-import { IOverflow }    from "./index";
+import { IOverflow, IOverflowHashCode }    from "./index";
 import { OverflowInt }  from "./OverflowInt";
 import { OverflowLong } from "./OverflowLong";
 
 /**
  * The OveflowHashCode class.
  */
-export class OverflowHashCode {
+export class OverflowHashCode implements IOverflowHashCode {
 
     private overflow: IOverflow;
 
@@ -54,6 +54,8 @@ export class OverflowHashCode {
                 for (let i = 0; i < a.length; i++) this.of(a[i]);
             } else if (typeof a === "string") {
                 for (let i = 0; i < a.length; i++) this.of(a.charCodeAt(i));
+            } else if (typeof a === "object" || typeof a === "function") {
+                this.of(String(a));
             } else {
                 this.overflow.times(this.PRIME);
                 this.overflow.plus(+a);
