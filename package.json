@@ -1,6 +1,6 @@
 {
   "name": "overflow-js",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Simple 32/64-bit math that overflows.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
