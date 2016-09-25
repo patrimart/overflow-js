@@ -142,9 +142,9 @@ const hashcode = new OverflowHashCode(31, 17, false);
 ```
 
 ## Benchmarks
-This kind of library has endless opportunities for optimization. As of `v0.3.1`, no great effort has been invested into optimization. Tips, suggestions and contributions are always welcome.
+This kind of library has endless opportunities for optimization. As of `v0.3.2`, no great effort has been invested into optimization. Tips, suggestions and contributions are always welcome.
 
-Here are the current version benchmarks for `v0.3.1`:
+Here are the current version benchmarks for `v0.3.2`:
 ```bash
 $ node test-benchmarks/addition.js 
 Regular plus/minus x 38,508,258 ops/sec ±5.66% (81 runs sampled)
