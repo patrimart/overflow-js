@@ -1,32 +1,31 @@
 
 import { IOverflow, IOverflowHashCode } from "./interfaces";
 
-import { OverflowLong }  from "./OverflowLong";
-import { OverflowTyped } from "./OverflowTyped";
+import { OverflowBig }  from "./OverflowBig";
 
 /**
  * The OveflowHashCode class.
  */
-export class OverflowHashCode implements IOverflowHashCode<number> {
+export class OverflowHashCodeBig implements IOverflowHashCode<string> {
 
-    private overflow: IOverflow<number>;
+    private overflow: IOverflow<string>;
 
     /**
      * Initializes the class.
-     * @param {number} [seed=1] - the initial value.
-     * @param {number} [PRIME=31] - the prime multiplier.
-     * @param {number} [byteLength=32] - If true, 32-bit; else 53-bit (JS).
+     * @param {number} [_seed=1] - the initial value.
+     * @param {number} [_PRIME=31] - the prime multiplier.
+     * @param {64 | 128 | 256 | 512 | 1024 | 2048} [_byteLength=64] - The byte length.
      */
     constructor (
-        private _seed = 1,
+        private _seed: number | string = 1,
         private _PRIME = 31,
-        private _byteLength: 32 | 53 = 32,
+        private _byteLength: 64 | 128 | 256 | 512 | 1024 | 2048 = 64,
     ) {
-        this.overflow = _byteLength === 32 ? new OverflowTyped(_seed) : new OverflowLong(_seed);
+        this.overflow = new OverflowBig(_seed, _byteLength);
     }
 
     public get seed () {
-        return this._seed;
+        return String(this._seed);
     }
 
     public get prime () {
@@ -46,7 +45,6 @@ export class OverflowHashCode implements IOverflowHashCode<number> {
 
     /**
      * Overrides Object.prototype.valueOf().
-     * @returns {number}
      */
     public valueOf () {
         return this.overflow.value;
@@ -59,12 +57,12 @@ export class OverflowHashCode implements IOverflowHashCode<number> {
      */
     public of (...args: (string | number | string[] | number[])[]) {
 
-        return new OverflowHashCode(hash(this.overflow, this.prime, ...args).value, this.prime, this.byteLength) as this;
+        return new OverflowHashCodeBig(hash(this.overflow, this.prime, ...args).value, this.prime, this.byteLength) as this;
     }
 }
 
 
-function hash (overflow: IOverflow<number>, prime: number, ...args: (string | number | string[] | number[])[]) {
+function hash (overflow: IOverflow<string>, prime: number, ...args: (string | number | string[] | number[])[]) {
 
     for (let j = 0; j < args.length; j++) {
         

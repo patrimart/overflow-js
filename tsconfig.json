@@ -3,14 +3,17 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es5",
+        "lib": [
+            "es6"
+        ],
         "noImplicitAny": true,
+        "strictNullChecks": true,
         "sourceMap": true,
         "declaration": true,
         "removeComments": true,
         "outDir": "lib"
     },
     "files": [
-        "src/index.ts",
-        "typings/index.d.ts"
+        "src/index.ts"
     ]
 }

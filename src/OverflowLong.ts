@@ -1,17 +1,21 @@
+import * as console from 'console';
 
-import { IOverflow } from "./index";
+import { IOverflow } from "./interfaces";
 
 /**
  * The OverflowLong class implements IOverflow.
  */
-export class OverflowLong implements IOverflow {
+export class OverflowLong implements IOverflow<number> {
+
+    private _minValue: this;
+    private _maxValue: this;
 
     constructor (
         private _value = 0,
-        private MIN_SAFE_VALUE = Number.MIN_SAFE_INTEGER,
-        private MAX_SAFE_VALUE = Number.MAX_SAFE_INTEGER
+        private MIN_SAFE_VALUE = -9007199254740991,
+        private MAX_SAFE_VALUE = 9007199254740991,
     ) {
-        this._value = this.valCheck(_value);
+        this._value = this.valCheck(this._value);
     }
 
     /**
@@ -23,89 +27,136 @@ export class OverflowLong implements IOverflow {
 
     /**
      * Overrides Object.prototype.valueOf().
-     * @returns {number}
      */
     public valueOf () {
         return this._value;
     }
 
+
+    public get minValue () {
+        if (this._minValue === undefined) {
+            this._minValue = new OverflowLong(this.MIN_SAFE_VALUE, this.MIN_SAFE_VALUE, this.MAX_SAFE_VALUE) as this;
+        }
+        return this._minValue;
+    }
+
+    public get maxValue () {
+        if (this._maxValue === undefined) {
+            this._maxValue = new OverflowLong(this.MAX_SAFE_VALUE, this.MIN_SAFE_VALUE, this.MAX_SAFE_VALUE) as this;
+        }
+        return this._maxValue;
+    }
+
+
+    public get byteLength (): number {
+        return 53;
+    }
+
+    public get isSigned (): boolean {
+        return true;
+    }
+
+    public get isNegative (): boolean {
+        return this._value < 0;
+    }
+
+
+    public equals (v: number): boolean {
+        return this._value === +v;
+    }
+
+    public lessThan (v: number): boolean {
+        return this._value < +v;
+    }
+
+    public greaterThan (v: number): boolean {
+        return this._value > +v;
+    }
+
+    
+    public negate () {
+        return new OverflowLong(this._value * -1, this.MIN_SAFE_VALUE, this.MAX_SAFE_VALUE) as this;
+    }
+
+
     /**
      * Adds the given value.
-     * @param {number} v - the value to add.
-     * @returns {this}
      */
     public plus (v: number) {
 
-        v = this.valCheck(v);
-
-        // Neg + Pos OR Pos + Neg cannot overflow.
-        if ((this._value >= 0 && v <= 0) || (this._value <= 0 && v >= 0)) {
-            this._value = this._value + v;
-            return this;
-        }
-
-        if (v >= 0) {
-
-            const diffToMax = this.MAX_SAFE_VALUE - this._value;
-
-            if (diffToMax >= v) {
-                this._value = this._value + v;
-            } else {
-                this._value = this.MIN_SAFE_VALUE;
-                this.plus(v - diffToMax - 1);
-            }
-
-        } else {
-
-            const diffToMin = this.MIN_SAFE_VALUE - this._value;
-
-            if (diffToMin <= v) {
-                this._value = this._value + v;
-            } else {
-                this._value = this.MAX_SAFE_VALUE;
-                this.plus(v - diffToMin + 1);
-            }
-        }
-
-        return this;
+        return new OverflowLong(plus(this._value, v, this.MIN_SAFE_VALUE, this.MAX_SAFE_VALUE), this.MIN_SAFE_VALUE, this.MAX_SAFE_VALUE) as this;
     }
 
     /**
      * Subtracts the given value.
-     * @param {number} v - the value to subtract.
-     * @returns {this}
      */
     public minus (v: number) {
-        return this.plus(v * -1);
+        return this.plus(+v * -1);
     }
 
     /**
      * Multiplies the given value.
-     * @param {number} v - the value to multiply.
-     * @returns {this}
      */
     public times (v: number) {
-        v = this.valCheck(v);
-        const v2 = this._value;
-        for (let i = 1; i < v; i++) {
-            this.plus(v2);
+        let iterations = this.valCheck(Math.abs(v));
+        let val = Math.abs(this._value);
+        let total = 0;
+        while (--iterations >= 0) {
+            total = plus(val, total, this.MIN_SAFE_VALUE, this.MAX_SAFE_VALUE);
         }
-        return this;
+        const multi = (v < 0 && this._value >= 0) || (v >= 0 && this._value < 0) ? -1 : 1;
+        return new OverflowLong(total * multi, this.MIN_SAFE_VALUE, this.MAX_SAFE_VALUE) as this;
     }
 
     /**
      * Divides the given value.
-     * @param {number} v - the value to divide.
-     * @returns {this}
      */
     public divide (v: number) {
-        this._value = this.valCheck((this._value / this.valCheck(v)));
-        return this;
+        return new OverflowLong(this.valCheck(this._value / this.valCheck(v)), this.MIN_SAFE_VALUE, this.MAX_SAFE_VALUE) as this;
+    }
+
+    public toJSON () {
+        return this.value;
     }
 
     private valCheck (v: number) {
-        if (v > this.MAX_SAFE_VALUE) throw new RangeError("The given long greater than the MAX_SAFE_VALUE.");
-        if (v < this.MIN_SAFE_VALUE) throw new RangeError("The given long less than the MIN_SAFE_VALUE.");
+        if (v > this.MAX_SAFE_VALUE) throw new RangeError(`The given long (${v}) is greater than the MAX_SAFE_VALUE (${this.MAX_SAFE_VALUE}).`);
+        if (v < this.MIN_SAFE_VALUE) throw new RangeError(`The given long (${v}) is less than the MIN_SAFE_VALUE (${this.MIN_SAFE_VALUE}).`);
         return parseInt(v as any);
     }
+}
+
+
+function plus (val: number, v: number, MIN_SAFE_VALUE: number, MAX_SAFE_VALUE: number) {
+
+    // Neg + Pos OR Pos + Neg cannot overflow.
+    if ((val >= 0 && v <= 0) || (val <= 0 && v >= 0)) {
+        val += v;
+        return val;
+    }
+
+    if (v >= 0) {
+
+        const diffToMax = MAX_SAFE_VALUE - val;
+
+        if (diffToMax >= v) {
+            val += v;
+        } else {
+            val = MIN_SAFE_VALUE;
+            val = plus(val, v - diffToMax - 1, MIN_SAFE_VALUE, MAX_SAFE_VALUE);
+        }
+
+    } else {
+
+        const diffToMin = MIN_SAFE_VALUE - val;
+
+        if (diffToMin <= v) {
+            val += v;
+        } else {
+            val = MAX_SAFE_VALUE;
+            val = plus(val, v - diffToMin + 1, MIN_SAFE_VALUE, MAX_SAFE_VALUE);
+        }
+    }
+
+    return val;
 }

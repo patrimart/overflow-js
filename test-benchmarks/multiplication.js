@@ -5,8 +5,9 @@ var Overflow = require('../lib').Overflow;
 var suite = new Benchmark.Suite;
 
 var o = 31;
-const oi = Overflow.int(31);
-const ol = Overflow.long(31);
+var oi = Overflow.int(31);
+var ol = Overflow.long(31);
+var ob = Overflow.big128(31);
 
 // add tests 
 suite.add('Regular multiplication', function() {
@@ -16,12 +17,17 @@ suite.add('Regular multiplication', function() {
 })
 .add('Overflow.int.times', function() {
 
-    oi.times(313);
+    oi = oi.times(313);
 
 })
 .add('Overflow.long.times', function() {
 
-    ol.times(313);
+    ol = ol.times(313);
+
+})
+.add('Overflow.big.times', function() {
+
+    ob = ob.times(313);
 
 })
 // add listeners 

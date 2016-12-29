@@ -3,5 +3,3 @@
 .vscode
 coverage
 node_modules
-test/typings
-typings
